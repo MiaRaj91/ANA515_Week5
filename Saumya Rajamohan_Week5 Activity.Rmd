@@ -1,0 +1,65 @@
+---
+title: "ANA 515 Week 5 Activity"
+author: "Saumya Rajamohan"
+date: "`r Sys.Date()`"
+output: word_document
+---
+```{r setup, echo=FALSE, message= FALSE, warning=FALSE}
+#echo = False hides code in final result
+library(magrittr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+```
+
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+# Reading data into R
+ 
+#The read.csv function was used to read the data from a url. This R function can read delimited flat files with comma separated values.
+#read.csv is found within the Tidyverse package
+
+raw <- "https://raw.githubusercontent.com/fivethirtyeight/data/master/masculinity-survey/raw-responses.csv"
+survey <- read.csv(raw)
+
+```
+
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+# Clean the Data
+subsurvey<- survey %>% 
+  select(q0001, q0002, q0005, q0009, q0014, q0015, weight, orientation, age3) %>% 
+  rename("SelfPerception"="q0001", "ExternalPerception"="q0002", "SocietalPressure"="q0005", "Employment"="q0009", "MeTooAwareness"="q0014", "MeTooResponse"="q0015", "Weight"="weight", "SexualOrientation"= "orientation","AgeGroup"="age3")
+
+#Filter out rows with missing values
+surveycomplete <- na.omit(subsurvey)
+
+```
+#Graph 1: Variation in Societal pressure by Sexual Orientation
+
+This graph looks into the pressure experienced by men from society and whether their sexual orientation affects their perception or awareness of this pressure. 
+This is a co-variation graph created using the geom_count() function that is in-built in R.This function counts the number of observations for each category and displays it as a circle. the size of the circle indicates the number of observations for each combination of the categorical variables.
+The graph suggests that a high proportion of men (>1000) irrespective of their sexual orientation, felt that society puts an unhealthy pressure on men. 
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(subsurvey) +
+  geom_count(mapping = aes(x = SexualOrientation, y = SocietalPressure))+
+  labs(x = "Sexual Orientation", 
+       y = "Societal Pressure",
+       title = "Variation in Societal Pressure among Men")
+
+``` 
+#Graph 2: Variation in External perception of masculinity by Age group
+
+This graph looks into the significance men attach to others' perception of their masculinity and whether this need to appease society differs among age groups.
+This is a co-variation graph created using the geom_tile() function within the dplyr package.This function counts the number of observations for each category and creates a heat map to display the same. The color indicates the number of observations for each combination of the categorical variables.
+The graph suggests that men in the 35-64 years age group mostly attach some significance to how masculine society perceives them to be as opposed to men in the 18-34 years age group, who do not give it any importance. 
+
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+subsurvey %>% 
+  count(AgeGroup, ExternalPerception) %>%  
+  ggplot(mapping = aes(x = AgeGroup, y = ExternalPerception)) +
+    geom_tile(mapping = aes(fill = n))+
+  labs(x = "Age Group", 
+       y = "External Perception of Masculinity",
+       title = "Variation in External perception of masculinity among Men")
+
+``` 
